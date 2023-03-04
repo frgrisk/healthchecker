@@ -75,7 +75,7 @@ func init() {
 
 	runCmd.Flags().StringVar(&config.Name, "name", "", "name of the service for notifications")
 	runCmd.Flags().StringVar(&config.URL, "url", "", "URL of the web service to monitor")
-	runCmd.Flags().StringVar(&config.DynamoDBTableName, "dynamodb-table-name", "", "name of the DynamoDB table to use for storing health check results")
+	runCmd.Flags().StringVar(&config.DynamoDBTableName, "dynamodb-table-name", "healthchecker-results", "name of the DynamoDB table to use for storing health check results")
 	runCmd.Flags().IntVar(&config.FailureThreshold, "failure-threshold", 5, "number of consecutive failures before sending a down notification")
 	runCmd.Flags().IntVar(&config.SuccessThreshold, "success-threshold", 3, "number of consecutive successes before sending a recovered notification")
 	runCmd.Flags().DurationVar(&config.Interval, "interval", 10*time.Second, "interval between health checks")
@@ -83,6 +83,4 @@ func init() {
 	runCmd.Flags().IntVar(&count, "count", 0, "number of times to run the health check (0 = infinite)")
 	runCmd.Flags().StringVar(&config.TeamsWebhookURL, "teams-webhook-url", "", "URL of the Microsoft Teams webhook to use for sending notifications")
 	_ = runCmd.MarkFlagRequired("url")
-	_ = runCmd.MarkFlagRequired("dynamodb-table-name")
-	_ = runCmd.MarkFlagRequired("dynamodb-partition-key")
 }
