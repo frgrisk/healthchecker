@@ -54,7 +54,7 @@ duplicate notifications.
 
 ## To-Do
 
-- [ ] Add logging redirection
+- [x] Add logging redirection
 - [ ] Add support for Lambda
 - [ ] Add support for other notification providers
 - [ ] Add support for other storage providers
