@@ -25,7 +25,7 @@ type Config struct {
 	Timeout           time.Duration
 	Interval          time.Duration
 	TeamsWebhookURL   string
-	LoggingFilename string
+	LoggingFilename   string
 }
 
 type Result struct {
