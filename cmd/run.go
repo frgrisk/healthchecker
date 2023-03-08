@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/frgrisk/healthchecker/healthcheck"
@@ -23,6 +24,15 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "run performs health checks on the specified URL",
 	Run: func(cmd *cobra.Command, args []string) {
+		if config.LoggingFilename != "" {
+			file, err := os.OpenFile(config.LoggingFilename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+			if err == nil {
+				log.Info("Logging to file: ", config.LoggingFilename)
+				log.SetOutput(file)
+			} else {
+				log.Error("Failed to log to file, using default stderr")
+			}
+		}
 		if config.Interval < config.Timeout {
 			log.Fatal("interval must be greater than or equal to timeout")
 		}
@@ -82,5 +92,7 @@ func init() {
 	runCmd.Flags().DurationVar(&config.Timeout, "timeout", time.Second, "timeout for the health check")
 	runCmd.Flags().IntVar(&count, "count", 0, "number of times to run the health check (0 = infinite)")
 	runCmd.Flags().StringVar(&config.TeamsWebhookURL, "teams-webhook-url", "", "URL of the Microsoft Teams webhook to use for sending notifications")
+	runCmd.Flags().StringVar(&config.LoggingFilename, "logging-filename", "", "filename to use for logging (default to stdout)")
 	_ = runCmd.MarkFlagRequired("url")
+	_ = runCmd.MarkFlagFilename("logging-filename")
 }
