@@ -3,6 +3,7 @@ package cmd
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/frgrisk/healthchecker/healthcheck"
@@ -24,10 +25,16 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "run performs health checks on the specified URL",
 	Run: func(cmd *cobra.Command, args []string) {
-		if config.LoggingFilename != "" {
-			file, err := os.OpenFile(config.LoggingFilename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		logLevel, err := log.ParseLevel(config.LogLevel)
+		if err != nil {
+			log.Infof(`Invalid log level %q specified. Using default "info" level.`, config.LogLevel)
+			logLevel = log.InfoLevel
+		}
+		log.SetLevel(logLevel)
+		if config.LogFilename != "" {
+			file, err := os.OpenFile(config.LogFilename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 			if err == nil {
-				log.Info("Logging to file: ", config.LoggingFilename)
+				log.Info("Logging to file: ", config.LogFilename)
 				log.SetOutput(file)
 			} else {
 				log.Error("Failed to log to file, using default stderr")
@@ -92,7 +99,28 @@ func init() {
 	runCmd.Flags().DurationVar(&config.Timeout, "timeout", time.Second, "timeout for the health check")
 	runCmd.Flags().IntVar(&count, "count", 0, "number of times to run the health check (0 = infinite)")
 	runCmd.Flags().StringVar(&config.TeamsWebhookURL, "teams-webhook-url", "", "URL of the Microsoft Teams webhook to use for sending notifications")
-	runCmd.Flags().StringVar(&config.LoggingFilename, "logging-filename", "", "filename to use for logging (default to stdout)")
+	runCmd.Flags().StringVar(&config.LogFilename, "log-filename", "", "filename to use for logging (default to stdout)")
+	runCmd.Flags().StringVar(&config.LogLevel, "log-level", "info", "logging level to use "+printValidFlagValues(allLogLevels()))
 	_ = runCmd.MarkFlagRequired("url")
 	_ = runCmd.MarkFlagFilename("logging-filename")
+}
+
+func allLogLevels() []string {
+	var levels []string
+	for _, level := range log.AllLevels {
+		levels = append(levels, level.String())
+	}
+	return levels
+}
+
+func printValidFlagValues(i []string) string {
+	o := "("
+	for _, v := range i {
+		o += strconv.Quote(v)
+		if v != i[len(i)-1] {
+			o += "|"
+		}
+	}
+	o = o + ")"
+	return o
 }

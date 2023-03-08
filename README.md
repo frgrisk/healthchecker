@@ -44,6 +44,9 @@ The `healthchecker run` command takes the following flags:
 * `--dynamodb-table-name`: the name of the DynamoDB table to use for storing 
   health check results (default "healthchecker-results")
 * `--count`: the number of times to run the health check (0 = infinite)
+* `--log-filename`: the log file to write to (if not specified, write to stdout)
+* `--log-level`: logging level to use 
+  ("panic"|"fatal"|"error"|"warning"|"info"|"debug"|"trace") (default "info")
 
 By default, the `healthchecker run` command will run indefinitely, 
 performing health checks on the specified URL at the specified interval. If 
