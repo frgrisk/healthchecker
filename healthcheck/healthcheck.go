@@ -1,16 +1,13 @@
 package healthcheck
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"net/http"
-	"text/template"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/frgrisk/healthchecker/notify"
 	"github.com/pkg/errors"
 )
 
@@ -24,6 +21,7 @@ type Config struct {
 	SuccessThreshold  int
 	Timeout           time.Duration
 	Interval          time.Duration
+	SNSTopicARNs      []string
 	TeamsWebhookURL   string
 	LogFilename       string
 	LogLevel          string
@@ -122,40 +120,15 @@ func (c Config) Run() (result Result, err error) {
 	}
 	if shouldNotify {
 		result.LastNotificationTime = result.LastCheckTime
-		if c.TeamsWebhookURL != "" {
-			// Send a notification to Microsoft Teams
-			if result.Status == http.StatusOK {
-				result.ChangeDescription = "has recovered"
-			} else {
-				result.ChangeDescription = "is down"
-			}
-			var messagePayload bytes.Buffer
-			tmpl, err := template.New("notify").Parse(teamsNotificationTemplate)
-			if err != nil {
-				return result, errors.Wrap(err, "failed to parse notification template")
-			}
-			err = tmpl.Execute(&messagePayload, result)
-			if err != nil {
-				return result, errors.Wrap(err, "failed to execute notification template")
-			}
-			err = notify.SendNotification(c.TeamsWebhookURL, string(messagePayload.Bytes()))
-			if err != nil {
-				return result, errors.Wrap(err, "failed to send notification to Teams webhook")
-			}
+		if result.Status == http.StatusOK {
+			result.ChangeDescription = "has recovered"
+		} else {
+			result.ChangeDescription = "is down"
+		}
+		err = c.Notify(result)
+		if err != nil {
+			return result, errors.Wrap(err, "failed to send notification(s)")
 		}
 	}
 	return result, errors.Wrap(basics.PutItem(result), "failed to write healthcheck result to DynamoDB")
 }
-
-var teamsNotificationTemplate = `
-# Service {{.Name}} {{.ChangeDescription}}
-
-## Details
-- **URL**: {{.URL}}
-- **Status**: {{.Status}} ({{.Description}})
-- **Response Time**: {{.ResponseTime}}
-- **Last Check Time**: {{.LastCheckTime}}
-- **Last Successful Check Time**: {{.LastSuccessTime}}
-- **Last Failure Time**: {{.LastFailureTime}}
-- **Payload**: {{.Body}}
-`

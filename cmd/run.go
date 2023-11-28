@@ -98,6 +98,7 @@ func init() {
 	runCmd.Flags().DurationVar(&config.Interval, "interval", 10*time.Second, "interval between health checks")
 	runCmd.Flags().DurationVar(&config.Timeout, "timeout", time.Second, "timeout for the health check")
 	runCmd.Flags().IntVar(&count, "count", 0, "number of times to run the health check (0 = infinite)")
+	runCmd.Flags().StringSliceVar(&config.SNSTopicARNs, "sns-topic-arns", []string{}, "ARNs of the SNS topics to use for sending notifications")
 	runCmd.Flags().StringVar(&config.TeamsWebhookURL, "teams-webhook-url", "", "URL of the Microsoft Teams webhook to use for sending notifications")
 	runCmd.Flags().StringVar(&config.LogFilename, "log-filename", "", "filename to use for logging (default to stdout)")
 	runCmd.Flags().StringVar(&config.LogLevel, "log-level", "info", "logging level to use "+printValidFlagValues(allLogLevels()))

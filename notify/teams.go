@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func SendNotification(url string, payload string) error {
+func Teams(url string, payload string) error {
 	contentType := "application/json"
 
 	data := map[string]string{"text": payload}
