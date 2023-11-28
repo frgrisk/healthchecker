@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.25.5
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.3
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.25.3
+	github.com/aws/aws-sdk-go-v2/service/sns v1.25.3
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
