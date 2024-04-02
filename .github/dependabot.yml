@@ -5,12 +5,19 @@
 
 version: 2
 updates:
-  - package-ecosystem: "gomod"
-    directory: "/"
+  - package-ecosystem: "gomod" # See documentation for possible values
+    directory: "/" # Location of package manifests
     schedule:
       interval: "monthly"
-
+    groups:
+      all-deps:
+        patterns:
+          - "*" # Matches all dependencies
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
+      # Check for updates to GitHub Actions every month
       interval: "monthly"
